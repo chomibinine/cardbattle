@@ -1,1 +1,50 @@
-<!DOCTYPE html><html><head><title>Card Clash Lobby</title></head><body><h1>로비</h1></body></html>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🤖 AI 카드 배틀</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      font-size: 1.2rem;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    button {
+      padding: 1rem 2rem;
+      margin: 1rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 <b>AI 카드 배틀</b></h1>
+  <div>
+    <button id="playCardBtn">🃏 카드 내기</button>
+    <button id="summaryBtn">📜 전투 요약 보기</button>
+  </div>
+
+  <script>
+    document.getElementById("playCardBtn").addEventListener("click", function() {
+      alert("카드를 냈습니다!");
+    });
+
+    document.getElementById("summaryBtn").addEventListener("click", function() {
+      alert("전투 요약은 아직 준비 중입니다!");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Card Clash Online</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="game.js"></script>
+</head>
+<body>
+  <h1>🃏 Card Clash: Online</h1>
+
+  <div id="setup">
+    <input id="roomCode" placeholder="방 코드 입력" />
+    <button onclick="createRoom()">방 만들기</button>
+    <button onclick="joinRoom()">참여하기</button>
+  </div>
+
+  <div id="gameArea" style="display:none;">
+    <h2 id="playerLabel">Player</h2>
+    <div id="hand"></div>
+    <p id="status">대기 중...</p>
+  </div>
+</body>
+</html>

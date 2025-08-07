@@ -1,1 +1,205 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>멀티플레이 대전 (속성 + 특수카드)</title>
+  <style>
+    body { font-family: sans-serif; background: #000; color: #fff; text-align: center; }
+    h1 { margin-top: 20px; font-size: 30px; }
+    .area { margin: 30px 0; }
+    .card { display: inline-block; padding: 10px; margin: 10px; background: #222; border: 2px solid #555; border-radius: 10px; width: 140px; height: 110px; cursor: pointer; }
+    .card:hover { background: #333; }
+    .selected { border: 2px solid yellow; background: #444; }
+    #result { font-size: 20px; margin-top: 20px; }
+  
+<style>
+  @media (max-width: 600px) {
+    body { padding: 10px; font-size: 16px; }
+    .card { width: 100px !important; font-size: 14px !important; }
+    button { font-size: 16px !important; padding: 8px 14px !important; }
+    #cardPool, #playerArea, #aiArea { display: flex; flex-wrap: wrap; justify-content: center; }
+  }
+
+<style>
+.card {
+  border: 2px solid #333;
+  border-radius: 10px;
+  width: 120px;
+  height: 160px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding-top: 20px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.card.fire { background-color: #fdd; }
+.card.water { background-color: #ddf; }
+.card.grass { background-color: #dfd; }
+.card.special { background-color: #ffd; border: 3px solid gold; }
+.card .rank {
+  display: block;
+  font-size: 22px;
+  margin-top: 20px;
+  color: #333;
+}
+</style>
+
+</style>
+
+
+<style>
+.card {
+  border: 2px solid #333;
+  border-radius: 10px;
+  width: 120px;
+  height: 160px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding-top: 20px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.card.fire { background-color: #fdd; }
+.card.water { background-color: #ddf; }
+.card.grass { background-color: #dfd; }
+.card.special { background-color: #ffd; border: 3px solid gold; }
+.card .rank {
+  display: block;
+  font-size: 22px;
+  margin-top: 20px;
+  color: #333;
+}
+</style>
+
+</style>
+</head>
+<body>
+  <h1>🧩 멀티 대전: 속성 + 특수카드 + 턴제</h1>
+  <div id="status">상대방을 기다리는 중...</div>
+  <div class="area" id="playerCards"></div><div id="turnInfo">현재 턴: 1</div><div id="remainingCards">남은 카드: 5장</div>
+  <div class="area" id="opponentStatus">상대방이 카드를 선택 중입니다...</div>
+  <div id="result"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBkDL4r-TwmNuUv5riVlNDeAnpibpcedPA",
+      authDomain: "card-83d5a.firebaseapp.com",
+      projectId: "card-83d5a",
+      storageBucket: "card-83d5a.appspot.com",
+      messagingSenderId: "83854808155",
+      appId: "1:83854808155:web:7dc0e45d257118aa8b1b7e",
+      databaseURL: "https://card-83d5a-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const url = new URL(location.href);
+    const roomId = url.searchParams.get("room");
+    const player = url.searchParams.get("player");
+    const nick = url.searchParams.get("nick");
+
+    const playerKey = "p" + player;
+    const enemyKey = player === "1" ? "p2" : "p1";
+
+    
+const advantage = {
+  fire: "grass",
+  grass: "water",
+  water: "fire"
+};
+
+
+    const cards = [{"name": "병사", "rank": 1, "element": "fire", "type": "normal"}, {"name": "궁수", "rank": 2, "element": "grass", "type": "normal"}, {"name": "기사", "rank": 3, "element": "water", "type": "normal"}, {"name": "마법사", "rank": 4, "element": "fire", "type": "normal"}, {"name": "왕", "rank": 5, "element": "grass", "type": "normal"}, {"name": "역전의 한수", "type": "special", "effect": "force_win"}];
+
+    let selectedCard = null;
+let turn = 1;
+let usedCards = [];
+let myDeck = JSON.parse(localStorage.getItem('myDeck')) || [];
+cards = myDeck;
+let win = 0;
+let lose = 0;
+let draw = 0;
+let turn = 1;
+let usedCards = [];
+let myDeck = JSON.parse(localStorage.getItem('myDeck')) || [];
+cards = myDeck;
+
+    const area = document.getElementById("playerCards");
+    function renderDeck() {
+      area.innerHTML = "";
+      cards.filter(c => !usedCards.includes(c.name)).forEach((c) => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `<strong>${c.name}</strong><br>` + (c.type === "special" ? "특수카드" : `계급: ${c.rank}<br>속성: ${c.element}`);
+      div.onclick = () => {
+        document.querySelectorAll(".card").forEach(x => x.classList.remove("selected"));
+        div.classList.add("selected");
+        selectedCard = c;
+        usedCards.push(c.name);
+        turn++;
+        document.getElementById("turnInfo").innerText = `현재 턴: ${turn}`;
+        renderDeck();
+document.getElementById("remainingCards").innerText = `남은 카드: ${cards.length - usedCards.length}장`;
+        set(ref(db, "rooms/" + roomId + "/" + playerKey + "_card"), c);
+      };
+      area.appendChild(div); }); }
+renderDeck();
+document.getElementById("remainingCards").innerText = `남은 카드: ${cards.length - usedCards.length}장`;
+    });
+
+    const status = document.getElementById("status");
+    const opponentStatus = document.getElementById("opponentStatus");
+    const result = document.getElementById("result");
+
+    onValue(ref(db, "rooms/" + roomId + "/" + enemyKey + "_card"), snapshot => {
+      const enemyCard = snapshot.val();
+      if (enemyCard && selectedCard) {
+        opponentStatus.innerHTML = `<strong>${enemyCard.name}</strong> 선택됨`;
+
+        // 승부 로직
+        let outcome = "🤝 무승부!";
+        if (selectedCard.type === "special" && selectedCard.effect === "force_win") {
+          outcome = "🎉 특수카드 발동! 승리!";
+        } else if (enemyCard.type === "special" && enemyCard.effect === "force_win") {
+          outcome = "💥 상대 특수카드 발동! 패배!";
+        } else if (advantage[selectedCard.element] === enemyCard.element) {
+          outcome = "🎯 속성 우위로 승리!";
+        } else if (advantage[enemyCard.element] === selectedCard.element) {
+          outcome = "⚡ 속성 열세로 패배!";
+        } else {
+          if (selectedCard.rank > enemyCard.rank) outcome = "🎉 계급 우위로 승리!";
+          else if (selectedCard.rank < enemyCard.rank) outcome = "💥 계급 열세로 패배!";
+        }
+        result.innerText = outcome;
+if (outcome.includes("승리")) win++;
+else if (outcome.includes("패배")) lose++;
+else draw++;
+
+if (turn > 5) {
+  let summary = `🎯 총 결과 - 승: ${win} / 패: ${lose} / 무: ${draw}\n`;
+  if (win > lose) summary += "🎉 최종 승리!";
+  else if (win < lose) summary += "💥 최종 패배!";
+  else summary += "🤝 최종 무승부!";
+  alert(summary);
+}
+        status.innerText = "전투 완료!";
+      }
+    });
+  </script>
+</body>
+</html>

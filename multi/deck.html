@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>덱 편집</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f2f2f2; }
+    h1 { font-size: 24px; }
+    .card { display: inline-block; padding: 10px; margin: 5px; border: 2px solid #999; border-radius: 8px; background: white; cursor: pointer; }
+    .card.selected { border-color: green; background: #dff0d8; }
+  
+<style>
+  @media (max-width: 600px) {
+    body { padding: 10px; font-size: 16px; }
+    .card { width: 100px !important; font-size: 14px !important; }
+    button { font-size: 16px !important; padding: 8px 14px !important; }
+    #cardPool, #playerArea, #aiArea { display: flex; flex-wrap: wrap; justify-content: center; }
+  }
+
+<style>
+.card {
+  border: 2px solid #333;
+  border-radius: 10px;
+  width: 120px;
+  height: 160px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding-top: 20px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.card.fire { background-color: #fdd; }
+.card.water { background-color: #ddf; }
+.card.grass { background-color: #dfd; }
+.card.special { background-color: #ffd; border: 3px solid gold; }
+.card .rank {
+  display: block;
+  font-size: 22px;
+  margin-top: 20px;
+  color: #333;
+}
+</style>
+
+</style>
+
+
+<style>
+.card {
+  border: 2px solid #333;
+  border-radius: 10px;
+  width: 120px;
+  height: 160px;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding-top: 20px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.card.fire { background-color: #fdd; }
+.card.water { background-color: #ddf; }
+.card.grass { background-color: #dfd; }
+.card.special { background-color: #ffd; border: 3px solid gold; }
+.card .rank {
+  display: block;
+  font-size: 22px;
+  margin-top: 20px;
+  color: #333;
+}
+</style>
+
+</style>
+</head>
+<body>
+  <h1>🧰 덱 편집 - 5장 선택</h1>
+  <div id="cardPool"></div>
+  <p>선택한 카드: <span id="selectedCount">0</span>/5</p>
+  <button id="startBtn" disabled>게임 시작</button>
+
+  <script>
+    const cardPool = [
+  { name: "기절", special: true },
+  { name: "방어", special: true },
+  { name: "회복", special: true },
+      { name: "불-1", rank: 1, attr: "불" },
+      { name: "물-2", rank: 2, attr: "물" },
+      { name: "풀-3", rank: 3, attr: "풀" },
+      { name: "불-4", rank: 4, attr: "불" },
+      { name: "물-5", rank: 5, attr: "물" },
+      { name: "풀-6", rank: 6, attr: "풀" },
+      { name: "특수-역전", special: true }
+    ];
+
+    const selected = [];
+
+    const poolDiv = document.getElementById("cardPool");
+    const countSpan = document.getElementById("selectedCount");
+    const btn = document.getElementById("startBtn");
+
+    cardPool.forEach(card => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.textContent = card.name;
+      div.onclick = () => {
+        if (div.classList.contains("selected")) {
+          div.classList.remove("selected");
+          const idx = selected.findIndex(c => c.name === card.name);
+          if (idx > -1) selected.splice(idx, 1);
+        } else {
+          if (selected.length < 5) {
+            div.classList.add("selected");
+            selected.push(card);
+          }
+        }
+        countSpan.innerText = selected.length;
+        btn.disabled = selected.length !== 5;
+      };
+      poolDiv.appendChild(div);
+    });
+
+    btn.onclick = () => {
+      localStorage.setItem("myDeck", JSON.stringify(selected));
+      window.location.href = "room.html";
+    };
+  </script>
+</body>
+</html>

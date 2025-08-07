@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>멀티플레이 로비</title>
+  <style>
+    body { font-family: sans-serif; background: #101010; color: #fff; text-align: center; }
+    h1 { margin-top: 60px; font-size: 36px; }
+    input, button {
+      font-size: 18px;
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 멀티플레이 로비</h1>
+  <input type="text" id="nickname" placeholder="닉네임을 입력하세요"><br>
+  <button onclick="createRoom()">방 만들기</button>
+  <button onclick="joinRoom()">방 참가하기</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBkDL4r-TwmNuUv5riVlNDeAnpibpcedPA",
+      authDomain: "card-83d5a.firebaseapp.com",
+      projectId: "card-83d5a",
+      storageBucket: "card-83d5a.appspot.com",
+      messagingSenderId: "83854808155",
+      appId: "1:83854808155:web:7dc0e45d257118aa8b1b7e",
+      databaseURL: "https://card-83d5a-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const status = document.getElementById("status");
+
+    function createRoom() {
+      const nick = document.getElementById("nickname").value;
+      if (!nick) return alert("닉네임을 입력하세요");
+      const roomId = Math.random().toString(36).substring(2, 8);
+      set(ref(db, "rooms/" + roomId), {
+        p1: nick,
+        state: "waiting"
+      }).then(() => {
+        location.href = `room.html?room=${roomId}&player=1&nick=${nick}`;
+      });
+    }
+
+    function joinRoom() {
+      const nick = document.getElementById("nickname").value;
+      if (!nick) return alert("닉네임을 입력하세요");
+      const roomId = prompt("참가할 방 ID를 입력하세요:");
+      get(ref(db, "rooms/" + roomId)).then(snapshot => {
+        if (snapshot.exists() && !snapshot.val().p2) {
+          set(ref(db, "rooms/" + roomId + "/p2"), nick).then(() => {
+            location.href = `room.html?room=${roomId}&player=2&nick=${nick}`;
+          });
+        } else {
+          alert("방이 없거나 이미 가득 찼습니다.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

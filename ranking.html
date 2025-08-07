@@ -1,0 +1,73 @@
+
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>🏆 카드 배틀 랭킹</title>
+  </head>
+  <body style="font-family:sans-serif;text-align:center;padding:2em;">
+    <h1>🏆 TOP 5 승리자</h1>
+    <div id="ranking"></div>
+    
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBkDL4r-TwmNuUv5riVlNDeAnpibpcedPA",
+    authDomain: "card-83d5a.firebaseapp.com",
+    projectId: "card-83d5a",
+    storageBucket: "card-83d5a.appspot.com",
+    messagingSenderId: "83854808155",
+    appId: "1:83854808155:web:7dc0e45d257118aa8b1b7e",
+    measurementId: "G-N0579YMZFY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
+
+  let uid = null;
+
+  signInAnonymously(auth)
+    .then(() => console.log("Signed in anonymously"))
+    .catch(err => console.error(err));
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      uid = user.uid;
+      loadRanking();
+    }
+  });
+
+  async function saveResult(result) {
+    if (!uid) return;
+    await addDoc(collection(db, "results"), {
+      uid,
+      result,
+      timestamp: Date.now()
+    });
+  }
+
+  async function loadRanking() {
+    const snapshot = await getDocs(query(collection(db, "results")));
+    const scores = {};
+    snapshot.forEach(doc => {
+      const { uid, result } = doc.data();
+      if (!scores[uid]) scores[uid] = { win: 0, lose: 0, draw: 0 };
+      scores[uid][result]++;
+    });
+    const sorted = Object.entries(scores).sort((a, b) => b[1].win - a[1].win).slice(0, 5);
+    const rankDiv = document.getElementById("ranking");
+    sorted.forEach(([uid, score], i) => {
+      const item = document.createElement("div");
+      item.textContent = `#${i+1} - UID:${uid.slice(0,6)}... 🏆 W:${score.win} / L:${score.lose} / D:${score.draw}`;
+      rankDiv.appendChild(item);
+    });
+  }
+
+  window.saveResult = saveResult;
+</script>
+
+  </body>
+</html>

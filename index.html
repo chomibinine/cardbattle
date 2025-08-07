@@ -3,48 +3,32 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🤖 AI 카드 배틀</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>카드 배틀 게임 - 모드 선택</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      padding: 2rem;
-      font-size: 1.2rem;
+    body { font-family: sans-serif; background: #111; color: #fff; text-align: center; }
+    h1 { margin-top: 60px; font-size: 36px; }
+    .btn {
+      display: block;
+      width: 300px;
+      margin: 30px auto;
+      padding: 20px;
+      font-size: 20px;
+      background: #222;
+      border: 2px solid #fff;
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
     }
-    h1 {
-      font-size: 2rem;
-    }
-    button {
-      padding: 1rem 2rem;
-      margin: 1rem;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      border: none;
-      background-color: #4CAF50;
-      color: white;
-      box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    button:hover {
-      background-color: #45a049;
+    .btn:hover {
+      background: #333;
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <h1>🤖 <b>AI 카드 배틀</b></h1>
-  <div>
-    <button id="playCardBtn">🃏 카드 내기</button>
-    <button id="summaryBtn">📜 전투 요약 보기</button>
-  </div>
-
-  <script>
-    document.getElementById("playCardBtn").addEventListener("click", function() {
-      alert("카드를 냈습니다!");
-    });
-
-    document.getElementById("summaryBtn").addEventListener("click", function() {
-      alert("전투 요약은 아직 준비 중입니다!");
-    });
-  </script>
+  <h1>🃏 카드 배틀 게임</h1>
+  <div class="btn" onclick="location.href='ai/index.html'">🎮 AI 대전 모드</div>
+  <div class="btn" onclick="location.href='multi/index.html'">🌐 멀티플레이 모드</div>
 </body>
 </html>

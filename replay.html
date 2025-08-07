@@ -1,0 +1,67 @@
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>🔁 전투 리플레이</title>
+</head>
+<body style="font-family:sans-serif;padding:2em;">
+  <h2>🔁 최근 전투 복기</h2>
+  <div id="replayLog"></div>
+  
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBkDL4r-TwmNuUv5riVlNDeAnpibpcedPA",
+    authDomain: "card-83d5a.firebaseapp.com",
+    projectId: "card-83d5a",
+    storageBucket: "card-83d5a.appspot.com",
+    messagingSenderId: "83854808155",
+    appId: "1:83854808155:web:7dc0e45d257118aa8b1b7e",
+    measurementId: "G-N0579YMZFY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
+
+  let uid = null;
+  signInAnonymously(auth).catch(console.error);
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      uid = user.uid;
+      loadReplay();
+    }
+  });
+
+  async function saveReplay(log) {
+    if (!uid) return;
+    await addDoc(collection(db, "logs"), {
+      uid,
+      log,
+      timestamp: Date.now()
+    });
+  }
+
+  async function loadReplay() {
+    if (!uid) return;
+    const q = query(collection(db, "logs"), where("uid", "==", uid), orderBy("timestamp", "desc"), limit(1));
+    const snapshot = await getDocs(q);
+    const logDiv = document.getElementById("replayLog");
+    snapshot.forEach(doc => {
+      const { log } = doc.data();
+      log.forEach(entry => {
+        const div = document.createElement("div");
+        div.textContent = `턴 ${entry.turn}: 나 - ${entry.myCard} / AI - ${entry.aiCard} ➜ 승자: ${entry.winner}`;
+        logDiv.appendChild(div);
+      });
+    });
+  }
+
+  window.saveReplay = saveReplay;
+</script>
+
+</body>
+</html>
